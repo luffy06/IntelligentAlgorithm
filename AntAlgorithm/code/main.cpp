@@ -1,34 +1,55 @@
 #include "head.h"
 #include "antsystem.h"
 
-int n, m;
-double **dis;
+int n;
+int **dis;
 
+
+double CalcPseudoEuclideanDistance(int xi, int yi, int xj, int yj) {
+  double sum = pow(xi - xj, 2) + pow(yi - yj, 2);
+  double d = sqrt(sum / 10);
+  int intd = (int)(d);
+  if (intd < d)
+    return intd + 1;
+  return intd;
+}
 
 void Input() {
-  cin >> n >> m;
-  dis = new double[n][n];
+  n = 0;
+  vector<int> xs, ys;
+  int id;
+  int x, y;
 
-  vector<double> xs, ys;
-  for (int i = 0; i < n; ++ i) {
-    int id;
-    double x, y;
-    cin >> id >> x >> y;
+  while (cin >> id >> x >> y) {
     xs.push_back(x);
     ys.push_back(y);
+    n = n + 1;
   }
+  
+  assert(n > 0);
+  dis = new int*[n];
+  for (int i = 0; i < n; ++ i)
+    dis[i] = new int[n];
 
   for (int i = 0; i < n; ++ i) {
     for (int j = 0; j < n; ++ j) {
-      double d = sqrt(pow(xs[i] - xs[j], 2) + pow(ys[i] - ys[j]));
-      dis[i][j] = d;
+      dis[i][j] = CalcPseudoEuclideanDistance(xs[i], ys[i], xs[j], ys[j]);
     }
   }
 }
 
+void ShowDis() {
+  for (int i = 0; i < n; i++) {
+    for (int j = 0; j < n; j++)
+      cout << dis[i][j] << "\t";
+    cout << endl;
+  }
+}
+
 int main() {
+  srand((unsigned int)time(NULL));
   Input();
-  AntSystem AS = AntSystem(n, dis, m);
+  AntSystem AS = AntSystem(n, dis, 50);
   AS.Run();
   AS.ShowSolution();
   return 0;
