@@ -85,9 +85,8 @@ public:
   
 };
 
-class AntSystem
-{
-private:
+class AntSystem {
+protected:
   vector<Ant> antList;
   int nNode;
   double **pheromone;
@@ -122,6 +121,22 @@ public:
     bestTour.clear();
     minDis = INF;
   }
+  
+  virtual void Run() = 0;
+
+  virtual void UpdatePheromone() = 0;
+
+  void ShowSolution() {
+    cout << "Minimal Path:" << minDis << endl;
+    for (int i : bestTour)
+      cout << i << "\t";
+    cout << endl;
+  }
+};
+
+class AntCycle : public AntSystem {
+public:
+  AntCycle(int n, int **dis, int m) : AntSystem(n, dis, m) {}
   
   void Run() {
     for (int it = 1; it <= MAXITER; ++ it) {
@@ -166,15 +181,116 @@ public:
       for (int j = 0; j < tabu.size() - 1; ++ j) {
         int from = tabu[j];
         int to = tabu[j + 1];
-        pheromone[from][to] = pheromone[from][to] + Q;
+        pheromone[from][to] = pheromone[from][to] + Q / length;
+      }
+    }
+  }
+};
+
+class AntDensity : public AntSystem {
+public:
+  AntDensity(int n, int **dis, int m) : AntSystem(n, dis, m) {}
+  
+  void Run() {
+    for (int it = 1; it <= MAXITER; ++ it) {
+      if (it % 100 == 0)
+        cout << "Iteration " << it << endl;
+      for (int j = 0; j < nNode - 1; ++ j) {
+        for (int i = 0; i < antList.size(); ++ i) {
+          antList[i].GenerateNextNode(pheromone, distance);
+        }
+        UpdatePheromone();
+      }
+      int bestAnt = -1;
+      for (int i = 0; i < antList.size(); ++ i) {
+        antList[i].AddStartNode(distance);
+        assert(antList[i].GetTabu().size() == nNode + 1);
+        if (antList[i].GetLength() < minDis) {
+          minDis = antList[i].GetLength();
+          bestAnt = i;
+        }
+      }
+      if (bestAnt != -1) {
+        bestTour.clear();
+        for (int i : antList[bestAnt].GetTabu())
+          bestTour.push_back(i);
+      }
+
+      for (int i = 0; i < antList.size(); ++ i) {
+        int st = rand() % nNode;
+        antList[i] = Ant(st, nNode);
       }
     }
   }
 
-  void ShowSolution() {
-    cout << "Minimal Path:" << minDis << endl;
-    for (int i : bestTour)
-      cout << i << "\t";
-    cout << endl;
+  void UpdatePheromone() {    
+    for (int i = 0; i < nNode; ++ i) {
+      for (int j = 0; j < nNode; ++ j) {
+        pheromone[i][j] = pheromone[i][j] * (1 - RHO);
+      }
+    }
+
+    for (int i = 0; i < antList.size(); ++ i) {
+      vector<int> tabu = antList[i].GetTabu();
+      for (int j = 0; j < tabu.size() - 1; ++ j) {
+        int from = tabu[j];
+        int to = tabu[j + 1];
+        pheromone[from][to] = pheromone[from][to] + Q;
+      }
+    }
+  }
+};
+
+class AntQuantity : public AntSystem {
+public:
+  AntQuantity(int n, int **dis, int m) : AntSystem(n, dis, m) {}
+  
+  void Run() {
+    for (int it = 1; it <= MAXITER; ++ it) {
+      if (it % 100 == 0)
+        cout << "Iteration " << it << endl;
+      for (int j = 0; j < nNode - 1; ++ j) {
+        for (int i = 0; i < antList.size(); ++ i) {
+          antList[i].GenerateNextNode(pheromone, distance);
+        }
+        UpdatePheromone();
+      }
+      int bestAnt = -1;
+      for (int i = 0; i < antList.size(); ++ i) {
+        antList[i].AddStartNode(distance);
+        assert(antList[i].GetTabu().size() == nNode + 1);
+        if (antList[i].GetLength() < minDis) {
+          minDis = antList[i].GetLength();
+          bestAnt = i;
+        }
+      }
+      if (bestAnt != -1) {
+        bestTour.clear();
+        for (int i : antList[bestAnt].GetTabu())
+          bestTour.push_back(i);
+      }
+
+      for (int i = 0; i < antList.size(); ++ i) {
+        int st = rand() % nNode;
+        antList[i] = Ant(st, nNode);
+      }
+    }
+  }
+
+  void UpdatePheromone() {    
+    for (int i = 0; i < nNode; ++ i) {
+      for (int j = 0; j < nNode; ++ j) {
+        pheromone[i][j] = pheromone[i][j] * (1 - RHO);
+      }
+    }
+
+    for (int i = 0; i < antList.size(); ++ i) {
+      vector<int> tabu = antList[i].GetTabu();
+      for (int j = 0; j < tabu.size() - 1; ++ j) {
+        int from = tabu[j];
+        int to = tabu[j + 1];
+        pheromone[from][to] = pheromone[from][to] + Q / distance[from][to];
+      }
+    }
   }
 };
