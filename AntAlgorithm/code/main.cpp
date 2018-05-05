@@ -49,19 +49,19 @@ void ShowDis() {
 int main() {
   srand((unsigned int)time(NULL));
   Input();
-  // AntCycle AC = AntCycle(n, dis, 50);
-  // cout << "Run Ant-Cycle Model" << endl;
-  // AC.Run();
-  // AC.ShowSolution();
+  AntCycle AC = AntCycle(n, dis, 50);
+  cout << "Run Ant-Cycle Model" << endl;
+  AC.Run();
+  AC.ShowSolution();
   
   AntDensity AD = AntDensity(n, dis, 50);
   cout << "Run Ant-Density Model" << endl;
   AD.Run();
   AD.ShowSolution();
 
-  // AntQuantity AQ = AntQuantity(n, dis, 50);
-  // cout << "Run Ant-Quantity Model" << endl;
-  // AQ.Run();
-  // AQ.ShowSolution();
+  AntQuantity AQ = AntQuantity(n, dis, 50);
+  cout << "Run Ant-Quantity Model" << endl;
+  AQ.Run();
+  AQ.ShowSolution();
   return 0;
 }

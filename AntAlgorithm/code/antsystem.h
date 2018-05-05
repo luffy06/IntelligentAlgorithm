@@ -26,7 +26,7 @@ public:
     length = 0;
   }
 
-  void GenerateNextNode(double **delta, int **distance) {
+  void GenerateNextNode(double **delta, int **distance, double ALPHA, double BETA) {
     double maxP = 0.0;
     int nextNode = -1;
     bool hasNext = false;
@@ -93,9 +93,17 @@ protected:
   int **distance;
   vector<int> bestTour;
   int minDis;
+  // coefficient
+  double ALPHA;
+  double BETA;
+  double RHO;
+  double Q;
+  double C;
+  double MAXITER;
 
 public:
-  AntSystem(int n, int **dis, int m) {
+  AntSystem(int n, int **dis, int m, string config) {
+    ReadConfig(config);
     antList.clear();
     nNode = n;
     pheromone = new double*[nNode];
@@ -126,6 +134,18 @@ public:
 
   virtual void UpdatePheromone() = 0;
 
+  void ReadConfig(string config) {
+    ifstream in(config);
+    string name;
+    in >> name >> ALPHA;
+    in >> name >> BETA;
+    in >> name >> RHO;
+    in >> name >> Q;
+    in >> name >> C;
+    in >> name >> MAXITER;
+    in.close();
+  }
+
   void ShowSolution() {
     cout << "Minimal Path:" << minDis << endl;
     for (int i : bestTour)
@@ -136,16 +156,16 @@ public:
 
 class AntCycle : public AntSystem {
 public:
-  AntCycle(int n, int **dis, int m) : AntSystem(n, dis, m) {}
+  AntCycle(int n, int **dis, int m) : AntSystem(n, dis, m, "antcycle.in") {}
   
   void Run() {
     for (int it = 1; it <= MAXITER; ++ it) {
-      if (it % 100 == 0)
-        cout << "Iteration " << it << endl;
+      // if (it % 100 == 0)
+      //   cout << "Iteration " << it << endl;
       int bestAnt = -1;
       for (int i = 0; i < antList.size(); ++ i) {
         for (int j = 0; j < nNode - 1; ++ j) {
-          antList[i].GenerateNextNode(pheromone, distance);
+          antList[i].GenerateNextNode(pheromone, distance, ALPHA, BETA);
         }
         antList[i].AddStartNode(distance);
         assert(antList[i].GetTabu().size() == nNode + 1);
@@ -154,6 +174,7 @@ public:
           bestAnt = i;
         }
       }
+      // cout << it << " " << minDis << endl;
       if (bestAnt != -1) {
         bestTour.clear();
         for (int i : antList[bestAnt].GetTabu())
@@ -189,15 +210,15 @@ public:
 
 class AntDensity : public AntSystem {
 public:
-  AntDensity(int n, int **dis, int m) : AntSystem(n, dis, m) {}
+  AntDensity(int n, int **dis, int m) : AntSystem(n, dis, m, "antdensity.in") {}
   
   void Run() {
     for (int it = 1; it <= MAXITER; ++ it) {
-      if (it % 100 == 0)
-        cout << "Iteration " << it << endl;
+      // if (it % 100 == 0)
+      //   cout << "Iteration " << it << endl;
       for (int j = 0; j < nNode - 1; ++ j) {
         for (int i = 0; i < antList.size(); ++ i) {
-          antList[i].GenerateNextNode(pheromone, distance);
+          antList[i].GenerateNextNode(pheromone, distance, ALPHA, BETA);
         }
         UpdatePheromone();
       }
@@ -210,6 +231,7 @@ public:
           bestAnt = i;
         }
       }
+      // cout << it << " " << minDis << endl;
       if (bestAnt != -1) {
         bestTour.clear();
         for (int i : antList[bestAnt].GetTabu())
@@ -243,15 +265,15 @@ public:
 
 class AntQuantity : public AntSystem {
 public:
-  AntQuantity(int n, int **dis, int m) : AntSystem(n, dis, m) {}
+  AntQuantity(int n, int **dis, int m) : AntSystem(n, dis, m, "antquantity.in") {}
   
   void Run() {
     for (int it = 1; it <= MAXITER; ++ it) {
-      if (it % 100 == 0)
-        cout << "Iteration " << it << endl;
+      // if (it % 100 == 0)
+      //   cout << "Iteration " << it << endl;
       for (int j = 0; j < nNode - 1; ++ j) {
         for (int i = 0; i < antList.size(); ++ i) {
-          antList[i].GenerateNextNode(pheromone, distance);
+          antList[i].GenerateNextNode(pheromone, distance, ALPHA, BETA);
         }
         UpdatePheromone();
       }
@@ -264,6 +286,7 @@ public:
           bestAnt = i;
         }
       }
+      // cout << it << " " << minDis << endl;
       if (bestAnt != -1) {
         bestTour.clear();
         for (int i : antList[bestAnt].GetTabu())
