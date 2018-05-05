@@ -135,7 +135,7 @@ public:
   virtual void UpdatePheromone() = 0;
 
   void ReadConfig(string config) {
-    ifstream in(config);
+    fstream in(config, fstream::in);
     string name;
     in >> name >> ALPHA;
     in >> name >> BETA;
@@ -155,13 +155,18 @@ public:
 };
 
 class AntCycle : public AntSystem {
+private:
+  fstream out;
 public:
-  AntCycle(int n, int **dis, int m) : AntSystem(n, dis, m, "antcycle.in") {}
+  AntCycle(int n, int **dis, int m) : AntSystem(n, dis, m, "antcycle.in") {
+    out.open("result.out", fstream::app);
+  }
   
   void Run() {
+    out << "Ant-Cycle" << endl;
     for (int it = 1; it <= MAXITER; ++ it) {
-      // if (it % 100 == 0)
-      //   cout << "Iteration " << it << endl;
+      if (it % 100 == 0)
+        cout << "Iteration " << it << endl;
       int bestAnt = -1;
       for (int i = 0; i < antList.size(); ++ i) {
         for (int j = 0; j < nNode - 1; ++ j) {
@@ -174,7 +179,7 @@ public:
           bestAnt = i;
         }
       }
-      // cout << it << " " << minDis << endl;
+      out << it << " " << minDis << endl;
       if (bestAnt != -1) {
         bestTour.clear();
         for (int i : antList[bestAnt].GetTabu())
@@ -187,6 +192,7 @@ public:
         antList[i] = Ant(st, nNode);
       }
     }
+    out.close();
   }
 
   void UpdatePheromone() {    
@@ -209,13 +215,18 @@ public:
 };
 
 class AntDensity : public AntSystem {
+private:
+  fstream out;
 public:
-  AntDensity(int n, int **dis, int m) : AntSystem(n, dis, m, "antdensity.in") {}
+  AntDensity(int n, int **dis, int m) : AntSystem(n, dis, m, "antdensity.in") {
+    out.open("result.out", fstream::app);
+  }
   
   void Run() {
+    out << "Ant-Density" << endl;
     for (int it = 1; it <= MAXITER; ++ it) {
-      // if (it % 100 == 0)
-      //   cout << "Iteration " << it << endl;
+      if (it % 100 == 0)
+        cout << "Iteration " << it << endl;
       for (int j = 0; j < nNode - 1; ++ j) {
         for (int i = 0; i < antList.size(); ++ i) {
           antList[i].GenerateNextNode(pheromone, distance, ALPHA, BETA);
@@ -231,7 +242,7 @@ public:
           bestAnt = i;
         }
       }
-      // cout << it << " " << minDis << endl;
+      out << it << " " << minDis << endl;
       if (bestAnt != -1) {
         bestTour.clear();
         for (int i : antList[bestAnt].GetTabu())
@@ -243,6 +254,7 @@ public:
         antList[i] = Ant(st, nNode);
       }
     }
+    out.close();
   }
 
   void UpdatePheromone() {    
@@ -264,13 +276,18 @@ public:
 };
 
 class AntQuantity : public AntSystem {
+private:
+  fstream out;
 public:
-  AntQuantity(int n, int **dis, int m) : AntSystem(n, dis, m, "antquantity.in") {}
+  AntQuantity(int n, int **dis, int m) : AntSystem(n, dis, m, "antquantity.in") {
+    out.open("result.out", fstream::app);
+  }
   
   void Run() {
+    out << "Ant-Quantity" << endl;
     for (int it = 1; it <= MAXITER; ++ it) {
-      // if (it % 100 == 0)
-      //   cout << "Iteration " << it << endl;
+      if (it % 100 == 0)
+        cout << "Iteration " << it << endl;
       for (int j = 0; j < nNode - 1; ++ j) {
         for (int i = 0; i < antList.size(); ++ i) {
           antList[i].GenerateNextNode(pheromone, distance, ALPHA, BETA);
@@ -286,7 +303,7 @@ public:
           bestAnt = i;
         }
       }
-      // cout << it << " " << minDis << endl;
+      out << it << " " << minDis << endl;
       if (bestAnt != -1) {
         bestTour.clear();
         for (int i : antList[bestAnt].GetTabu())
@@ -298,6 +315,7 @@ public:
         antList[i] = Ant(st, nNode);
       }
     }
+    out.close();
   }
 
   void UpdatePheromone() {    

@@ -49,6 +49,7 @@ void ShowDis() {
 int main() {
   srand((unsigned int)time(NULL));
   Input();
+  
   AntCycle AC = AntCycle(n, dis, 50);
   cout << "Run Ant-Cycle Model" << endl;
   AC.Run();
